@@ -15,132 +15,144 @@
 
 int buttonState = 0;
 int commandState;
-int a = 0;
-int b = 0;
-void setup() {
-  Serial.begin(9600);
-  pinMode(11, OUTPUT);
-  pinMode(12, OUTPUT);
+int ledTime = 0;
+unsigned long previousMillis = 0;
+unsigned long turnOffDelay = 1000;
+unsigned long buttonPushedMillis;
+bool ledReady = false;
+bool ledState = false;
+bool switchOff = false;
+
+void setup()
+{
+	Serial.begin(9600);
+	pinMode(11, OUTPUT);
+	pinMode(12, OUTPUT);
 }
 
-void loop() {
-  commandState = analogRead(A0);
-  Serial.println(commandState);
-  
-  // Left Blinker Setup 
-  if(commandState == 959){
-  	while(a < 4){
-	  digitalWrite(11, HIGH);
-    	delay(750); // Wait for 750 millisecond(s)
-    	digitalWrite(11, LOW);
-    	delay(750); // Wait for 750 millisecond(s)
- 		a++;
- }
- a = 0;
-}
-
-	// Right Blinker
- if(commandState == 133) {
-   	while(b < 4){
-	  digitalWrite(12, HIGH);
-    	delay(750); // Wait for 750 millisecond(s)
-    	digitalWrite(12, LOW);
-    	delay(750); // Wait for 750 millisecond(s)
- 		b++;
- }
- b = 0;
-}
-  
-	// Hazard Lights 
-		buttonState = analogRead(A0);
-		delay(40);
-	if (buttonState == 682){
+void loop()
+{
+	commandState = analogRead(A0);
+	Serial.println(commandState);
+	unsigned long currentMillis = millis();
+	
+	// Hazard Lights
+	buttonState = analogRead(A0);
+	delay(40);
+	if (buttonState == 682)
+	{
 		digitalWrite(12, !digitalRead(12));
-    	delay(40);
-}
-
- 	// Horn
-    if(commandState == 217){
-    	delay(40);
-    	digitalWrite(13, HIGH);
-    } else {
-  		digitalWrite(13, LOW);
-  		delay(40);
-    }
-	
-	// Heater Blower
-		buttonState = analogRead(A0);
 		delay(40);
-	if (buttonState == 979){
-		digitalWrite(2, !digitalRead(2));
-    	delay(40);
 	}
 
-    // Wipe mode 1
-	if(commandState == 46){
-    	delay(40);
-    	digitalWrite(4, HIGH);
-    } else {
-  		digitalWrite(4, LOW);
-  		delay(40);
+	// Horn
+	if (commandState == 217)
+	{
+		delay(40);
+		digitalWrite(13, HIGH);
 	}
-	
+	else
+	{
+		digitalWrite(13, LOW);
+		delay(40);
+	}
+
+	// Heater Blower
+	buttonState = analogRead(A0);
+	delay(40);
+	if (buttonState == 979)
+	{
+		digitalWrite(2, !digitalRead(2));
+		delay(40);
+	}
+
+	// Wipe mode 1
+	if (commandState == 46)
+	{
+		delay(40);
+		digitalWrite(4, HIGH);
+	}
+	else
+	{
+		digitalWrite(4, LOW);
+		delay(40);
+	}
+
 	// Wipe Mode 2
-	if(commandState == 327){
-    	delay(40);
-    	digitalWrite(5, HIGH);
-    } else {
-  		digitalWrite(5, LOW);
-  		delay(40);
+	if (commandState == 327)
+	{
+		delay(40);
+		digitalWrite(5, HIGH);
 	}
-	
+	else
+	{
+		digitalWrite(5, LOW);
+		delay(40);
+	}
+
 	// Wipe Mode 3
-	if(commandState == 844){
-    	delay(40);
-    	digitalWrite(6, HIGH);
-    } else {
-  		digitalWrite(6, LOW);
-  		delay(40);
+	if (commandState == 844)
+	{
+		delay(40);
+		digitalWrite(6, HIGH);
 	}
-	
-	// City Lights 
-	if(commandState == 156){
-    	delay(40);
-    	digitalWrite(7, HIGH);
-    } else {
-  		digitalWrite(7, LOW);
-  		delay(40);
+	else
+	{
+		digitalWrite(6, LOW);
+		delay(40);
 	}
-	
+
+	// City Lights
+	if (commandState == 156)
+	{
+		delay(40);
+		digitalWrite(7, HIGH);
+	}
+	else
+	{
+		digitalWrite(7, LOW);
+		delay(40);
+	}
+
 	// Running Lights
-	if(commandState == 18){
-   		delay(40);
-    	digitalWrite(8, HIGH);
-    } else {
-  		digitalWrite(8, LOW);
-  		delay(40);
+	if (commandState == 18)
+	{
+		delay(40);
+		digitalWrite(8, HIGH);
 	}
-	
-	// High Beams 
-	if(commandState == 944){
-    	delay(40);
-    	digitalWrite(9, HIGH);
-    } else {
-  		digitalWrite(9, LOW);
-  		delay(40);
+	else
+	{
+		digitalWrite(8, LOW);
+		delay(40);
 	}
-	
+
+	// High Beams
+	if (commandState == 944)
+	{
+		delay(40);
+		digitalWrite(9, HIGH);
+	}
+	else
+	{
+		digitalWrite(9, LOW);
+		delay(40);
+	}
+
 	// Communications
-	if(commandState == 254){
-    	delay(40);
-    	digitalWrite(10, HIGH);
-    } else {
-  		digitalWrite(10, LOW);
-  		delay(40);
+	if (commandState == 254)
+	{
+		delay(40);
+		digitalWrite(10, HIGH);
 	}
-	
+	else
+	{
+		digitalWrite(10, LOW);
+		delay(40);
+	}
+
 	// Washer
-	if(commandState == 912){
+	if (commandState == 912)
+	{
 		delay(40);
 		digitalWrite(3, HIGH);
 		delay(2000);
@@ -148,9 +160,88 @@ void loop() {
 		digitalWrite(5, HIGH);
 		delay(5000);
 		digitalWrite(5, LOW);
-	} else {
+	}
+	else
+	{
 		digitalWrite(3, LOW);
 		delay(40);
-
 	}
+
+	// Blinker Left
+	 if (commandState == 959)
+  {
+    buttonPushedMillis = currentMillis;
+    ledReady = true;
+  }
+
+  if (ledReady)
+  {
+
+    digitalWrite(11, !digitalRead(11));
+    ledState = true;
+    ledTurnedOnAt = currentMillis;
+    ledReady = false;
+  }
+
+  if (ledState)
+  {
+
+    if ((unsigned long)(currentMillis - ledTurnedOnAt) >= turnOffDelay)
+    {
+      ledState = false;
+      ledReady = true;
+      ledTime = ledTime + 1;
+    }
+    if (ledTime > 6)
+    {
+      switchOff = true;
+    }
+    if (switchOff)
+    {
+      ledReady = false;
+      ledTime = 0;
+      switchOff = false;
+    }
+  }
+
+  // Blinker Right
+   if (commandState == 133)
+  {
+    buttonPushedMillis = currentMillis;
+    ledReady = true;
+  }
+
+  if (ledReady)
+  {
+
+    Serial.println("start");
+    digitalWrite(12, !digitalRead(12));
+    ledState = true;
+    ledTurnedOnAt = currentMillis;
+    ledReady = false;
+    Serial.println("false");
+  }
+
+  if (ledState)
+  {
+
+    if ((unsigned long)(currentMillis - ledTurnedOnAt) >= turnOffDelay)
+    {
+      ledState = false;
+      ledReady = true;
+      Serial.println("time to go again");
+      ledTime = ledTime + 1;
+      Serial.println(ledTime);
+    }
+    if (ledTime > 6)
+    {
+      switchOff = true;
+    }
+    if (switchOff)
+    {
+      ledReady = false;
+      ledTime = 0;
+      switchOff = false;
+    }
+  }
 }
