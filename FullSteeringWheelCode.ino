@@ -16,12 +16,17 @@
 int buttonState = 0;
 int commandState;
 int ledTime = 0;
+int ledTimeR = 0;
 unsigned long previousMillis = 0;
 unsigned long turnOffDelay = 1000;
 unsigned long buttonPushedMillis;
+unsigned long ledTurnedOnAt;
 bool ledReady = false;
 bool ledState = false;
 bool switchOff = false;
+bool ledReadyR = false;
+bool ledStateR = false;
+bool switchOffR = false;
 
 void setup()
 {
@@ -35,7 +40,7 @@ void loop()
 	commandState = analogRead(A0);
 	Serial.println(commandState);
 	unsigned long currentMillis = millis();
-	
+
 	// Hazard Lights
 	buttonState = analogRead(A0);
 	delay(40);
@@ -168,80 +173,76 @@ void loop()
 	}
 
 	// Blinker Left
-	 if (commandState == 959)
-  {
-    buttonPushedMillis = currentMillis;
-    ledReady = true;
-  }
+	if (commandState == 959)
+	{
+		buttonPushedMillis = currentMillis;
+		ledReady = true;
+	}
 
-  if (ledReady)
-  {
+	if (ledReady)
+	{
 
-    digitalWrite(11, !digitalRead(11));
-    ledState = true;
-    ledTurnedOnAt = currentMillis;
-    ledReady = false;
-  }
+		digitalWrite(11, !digitalRead(11));
+		ledState = true;
+		ledTurnedOnAt = currentMillis;
+		ledReady = false;
+	}
 
-  if (ledState)
-  {
+	if (ledState)
+	{
 
-    if ((unsigned long)(currentMillis - ledTurnedOnAt) >= turnOffDelay)
-    {
-      ledState = false;
-      ledReady = true;
-      ledTime = ledTime + 1;
-    }
-    if (ledTime > 6)
-    {
-      switchOff = true;
-    }
-    if (switchOff)
-    {
-      ledReady = false;
-      ledTime = 0;
-      switchOff = false;
-    }
-  }
+		if ((unsigned long)(currentMillis - ledTurnedOnAt) >= turnOffDelay)
+		{
+			ledState = false;
+			ledReady = true;
+			ledTime = ledTime + 1;
+		}
+		if (ledTime > 6)
+		{
+			switchOff = true;
+		}
+		if (switchOff)
+		{
+			ledReady = false;
+			ledTime = 0;
+			switchOff = false;
+		}
+	}
 
-  // Blinker Right
-   if (commandState == 133)
-  {
-    buttonPushedMillis = currentMillis;
-    ledReady = true;
-  }
+	// Blinker Right
+	if (commandState == 133)
+	{
+		buttonPushedMillis = currentMillis;
+		ledReadyR = true;
+	}
 
-  if (ledReady)
-  {
+	if (ledReadyR)
+	{
 
-    Serial.println("start");
-    digitalWrite(12, !digitalRead(12));
-    ledState = true;
-    ledTurnedOnAt = currentMillis;
-    ledReady = false;
-    Serial.println("false");
-  }
+		digitalWrite(12, !digitalRead(12));
+		ledStateR = true;
+		ledTurnedOnAt = currentMillis;
+		ledReadyR = false;
+	}
 
-  if (ledState)
-  {
+	if (ledStateR)
+	{
 
-    if ((unsigned long)(currentMillis - ledTurnedOnAt) >= turnOffDelay)
-    {
-      ledState = false;
-      ledReady = true;
-      Serial.println("time to go again");
-      ledTime = ledTime + 1;
-      Serial.println(ledTime);
-    }
-    if (ledTime > 6)
-    {
-      switchOff = true;
-    }
-    if (switchOff)
-    {
-      ledReady = false;
-      ledTime = 0;
-      switchOff = false;
-    }
-  }
+		if ((unsigned long)(currentMillis - ledTurnedOnAt) >= turnOffDelay)
+		{
+			ledStateR = false;
+			ledReadyR = true;
+			ledTimeR = ledTimeR + 1;
+		}
+		if (ledTimeR > 6)
+		{
+			switchOffR = true;
+		}
+		if (switchOff)
+		{
+			ledReadyR = false;
+			ledTimeR = 0;
+			switchOffR = false;
+		}
+	}
 }
